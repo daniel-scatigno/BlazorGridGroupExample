@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BlazorGridGroupExample")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+07165e17205a5262d5e0506febf2e89754c99251")]
 [assembly: System.Reflection.AssemblyProductAttribute("BlazorGridGroupExample")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BlazorGridGroupExample")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
