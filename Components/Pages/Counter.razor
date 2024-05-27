@@ -1,0 +1,71 @@
+﻿@page "/counter"
+@using BlazorGridGroupExample.Library
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Grids
+@rendermode InteractiveServer
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter Total</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<SfGrid TValue="OSApontamentoViewModel" @ref="@Grid" AllowFiltering="true" AllowGrouping="true" AllowSorting="true"
+   AllowPaging="true" EnableAltRow="true" EnableHover="true" RowHeight="38" Query="@Query" AllowMultiSorting="true"
+   AllowSelection="true" AllowTextWrap="true">
+   <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" ImmediateModeDelay="200">
+   </GridFilterSettings>
+   <GridPageSettings PageSize="10"></GridPageSettings>
+   <GridEvents TValue="OSApontamentoViewModel" OnActionFailure="OnActionFailed">
+   </GridEvents>
+   <SfDataManager Adaptor="Adaptors.CustomAdaptor">
+      <ServiceDataAdaptorComponent TModel="OSApontamentoViewModel">
+      </ServiceDataAdaptorComponent>
+   </SfDataManager>
+   <GridColumns>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.CdUsuanalis) HeaderText="Analista" TextAlign="TextAlign.Left"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.CdOs) HeaderText="OS" TextAlign="TextAlign.Left" Width="100px"></GridColumn>
+      <GridColumn Field="OrdemServico.Cliente.NmClisis" HeaderText="Cliente" TextAlign="TextAlign.Left"></GridColumn>
+      <GridColumn Field="CdTarNavigation.DeTar" HeaderText="Tarefa" TextAlign="TextAlign.Left"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.DeObs) HeaderText="Descrição" TextAlign="TextAlign.Left"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.DtApo) HeaderText="Data" TextAlign="TextAlign.Left" Format="dd/MM/yyyy" Width="110px"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.HrIni) HeaderText="HR. Inicio" TextAlign="TextAlign.Left" Format="hh:mm" Width="100px"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.HrFin) HeaderText="HR. Fim" TextAlign="TextAlign.Left" Format="hh:mm" Width="100px"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.HrDes) HeaderText="HR. Des" TextAlign="TextAlign.Left" Format="hh:mm" Width="100px"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.HorasAplicadas) HeaderText="Horas Aplicadas" TextAlign="TextAlign.Left">
+         <Template>
+            @{
+               var apont = context as OSApontamentoViewModel;
+            }
+            @(TimeSpan.FromTicks(apont.HorasAplicadas).ToString())
+
+         </Template>
+      </GridColumn>
+   </GridColumns>
+   <GridAggregates>
+
+   </GridAggregates>
+
+</SfGrid>
+
+@code {
+   private int currentCount = 0;
+   private SfGrid<OSApontamentoViewModel> Grid{get;set;}
+   private Query Query { get; set; } = new Query();
+
+   private void IncrementCount()
+   {
+      currentCount++;
+      currentCount++;
+   }
+
+   private void OnActionFailed(FailureEventArgs args)
+   {
+      Console.WriteLine("Action failed on Grid:" + args.Error.Message + "\n"
+      + "Stack Trace:\n" + args.Error.StackTrace);
+
+   }
+}

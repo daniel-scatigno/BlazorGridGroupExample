@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Syncfusion.Blazor.Data" Version="21.1.41" />
+    <PackageReference Include="Syncfusion.Blazor.Grid" Version="21.1.41" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="21.1.41" />
+  </ItemGroup>
+  <Target Name="BeforeBuild">
+    <Copy SourceFiles="teste.json" DestinationFiles="$(ContentRootFolder)\teste.json" />
+  </Target>
+</Project>
