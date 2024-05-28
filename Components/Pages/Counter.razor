@@ -12,30 +12,43 @@
 <p role="status">Current count: @currentCount</p>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="ExportarGrid">Export Excel</button>
+
 
 <SfGrid TValue="OSApontamentoViewModel" @ref="@Grid" AllowFiltering="true" AllowGrouping="true" AllowSorting="true"
    AllowPaging="true" EnableAltRow="true" EnableHover="true" RowHeight="38" Query="@Query" AllowMultiSorting="true"
-   AllowSelection="true" AllowTextWrap="true">
+   AllowSelection="true" AllowTextWrap="true" AllowExcelExport="true">
    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" ImmediateModeDelay="200">
    </GridFilterSettings>
    <GridPageSettings PageSize="10"></GridPageSettings>
-   <GridEvents TValue="OSApontamentoViewModel" OnActionFailure="OnActionFailed">
+   <GridEvents TValue="OSApontamentoViewModel" OnActionFailure="OnActionFailed"
+      ExcelQueryCellInfoEvent="ExcelQueryCellInfoHandler"
+      ExcelAggregateTemplateInfo="ExcelQueryAggregateInfoHandler"
+      ExcelGroupCaptionTemplateInfo="ExcelGroupCaptionTemplateInfoHandler">
    </GridEvents>
    <SfDataManager Adaptor="Adaptors.CustomAdaptor">
       <ServiceDataAdaptorComponent TModel="OSApontamentoViewModel">
       </ServiceDataAdaptorComponent>
    </SfDataManager>
    <GridColumns>
-      <GridColumn Field=@nameof(OSApontamentoViewModel.CdUsuanalis) HeaderText="Analista" TextAlign="TextAlign.Left"></GridColumn>
-      <GridColumn Field=@nameof(OSApontamentoViewModel.CdOs) HeaderText="OS" TextAlign="TextAlign.Left" Width="100px"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.CdUsuanalis) HeaderText="Analista" TextAlign="TextAlign.Left">
+      </GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.CdOs) HeaderText="OS" TextAlign="TextAlign.Left" Width="100px">
+      </GridColumn>
       <GridColumn Field="OrdemServico.Cliente.NmClisis" HeaderText="Cliente" TextAlign="TextAlign.Left"></GridColumn>
       <GridColumn Field="CdTarNavigation.DeTar" HeaderText="Tarefa" TextAlign="TextAlign.Left"></GridColumn>
-      <GridColumn Field=@nameof(OSApontamentoViewModel.DeObs) HeaderText="Descrição" TextAlign="TextAlign.Left"></GridColumn>
-      <GridColumn Field=@nameof(OSApontamentoViewModel.DtApo) HeaderText="Data" TextAlign="TextAlign.Left" Format="dd/MM/yyyy" Width="110px"></GridColumn>
-      <GridColumn Field=@nameof(OSApontamentoViewModel.HrIni) HeaderText="HR. Inicio" TextAlign="TextAlign.Left" Format="hh:mm" Width="100px"></GridColumn>
-      <GridColumn Field=@nameof(OSApontamentoViewModel.HrFin) HeaderText="HR. Fim" TextAlign="TextAlign.Left" Format="hh:mm" Width="100px"></GridColumn>
-      <GridColumn Field=@nameof(OSApontamentoViewModel.HrDes) HeaderText="HR. Des" TextAlign="TextAlign.Left" Format="hh:mm" Width="100px"></GridColumn>
-      <GridColumn Field=@nameof(OSApontamentoViewModel.HorasAplicadas) HeaderText="Horas Aplicadas" TextAlign="TextAlign.Left">
+      <GridColumn Field=@nameof(OSApontamentoViewModel.DeObs) HeaderText="Descrição" TextAlign="TextAlign.Left">
+      </GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.DtApo) HeaderText="Data" TextAlign="TextAlign.Left"
+         Format="dd/MM/yyyy" Width="110px"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.HrIni) HeaderText="HR. Inicio" TextAlign="TextAlign.Left"
+         Format="hh:mm" Width="100px"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.HrFin) HeaderText="HR. Fim" TextAlign="TextAlign.Left"
+         Format="hh:mm" Width="100px"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.HrDes) HeaderText="HR. Des" TextAlign="TextAlign.Left"
+         Format="hh:mm" Width="100px"></GridColumn>
+      <GridColumn Field=@nameof(OSApontamentoViewModel.HorasAplicadas) HeaderText="Horas Aplicadas"
+         TextAlign="TextAlign.Left">
          <Template>
             @{
                var apont = context as OSApontamentoViewModel;
@@ -46,6 +59,25 @@
       </GridColumn>
    </GridColumns>
    <GridAggregates>
+      <GridGroupSettings Columns="@(new string[] { "CdUsuanalis" })"></GridGroupSettings>
+
+      <GridAggregate>
+         <GridAggregateColumns>
+            <GridAggregateColumn Field=@nameof(OSApontamentoViewModel.HorasAplicadas) Type="AggregateType.Sum" ColumnName="HorasAplicadas">
+               <GroupFooterTemplate>
+                  @{
+                     var Unit = (context as AggregateTemplateContext);
+                     <div>
+
+                        Total Horas:
+                        @(TimeSpan.FromTicks(Int64.Parse(Unit?.Sum != null ? Unit.Sum : "0")).ToString())
+                     </div>
+                  }
+               </GroupFooterTemplate>
+            </GridAggregateColumn>
+
+         </GridAggregateColumns>
+      </GridAggregate>
 
    </GridAggregates>
 
@@ -53,8 +85,8 @@
 
 @code {
    private int currentCount = 0;
-   private SfGrid<OSApontamentoViewModel> Grid{get;set;}
-   private Query Query { get; set; } = new Query();
+   private SfGrid<OSApontamentoViewModel> Grid { get; set; }
+   private Query Query { get; set; } = new Query().Where("CdUsuanalis","equals","daniel.scatigno",true,true);
 
    private void IncrementCount()
    {
@@ -68,4 +100,42 @@
       + "Stack Trace:\n" + args.Error.StackTrace);
 
    }
+
+   private async Task ExportarGrid(MouseEventArgs args)
+   {
+      ExcelExportProperties exportProperties = new ExcelExportProperties();
+
+      exportProperties.IncludeTemplateColumn = true;
+
+      exportProperties.FileName = $"Apontamentos.xlsx";
+
+      await Grid.ExportToExcelAsync(exportProperties);
+   }
+
+   public void ExcelQueryCellInfoHandler(ExcelQueryCellInfoEventArgs<OSApontamentoViewModel> args)
+    {
+        if (args.Column.HeaderText == "Horas Aplicadas")
+        {
+            args.Cell.Value = TimeSpan.FromTicks(args.Data.HorasAplicadas).ToString();
+        }
+    }
+
+    public void ExcelQueryAggregateInfoHandler(ExcelAggregateEventArgs args)
+    {
+        if (args.Column.Field == "HorasAplicadas")
+        {
+            args.Cell.Value = "";
+            //TimeSpan.FromTicks(Int64.Parse((string)args.Value)).ToString();
+        }
+    }
+
+    public void ExcelGroupCaptionTemplateInfoHandler(ExcelCaptionTemplateArgs args)
+    {
+        if (args.Column.Field == "HorasAplicadas")
+        {
+            args.Cell.Value = "";
+            //TimeSpan.FromTicks(Int64.Parse((string)args.Value)).ToString();
+        }
+
+    }
 }

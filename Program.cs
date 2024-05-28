@@ -1,11 +1,13 @@
 using BlazorGridGroupExample.Components;
 using Syncfusion.Blazor;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(Environment.GetEnvironmentVariable("SyncfusionKey"));
 builder.Services.AddSyncfusionBlazor();
 
 var app = builder.Build();
